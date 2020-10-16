@@ -56,34 +56,31 @@ def bst_recursive_deserialization(arr):
     :param arr: pre-order array of BST
     :return: reconstructed BST
     """
-    root, right = bst_rec_des_helper(0, None, arr)
+    root, right = bst_rec_des_helper(0, float('inf'), arr)
     return root
 
 
-def bst_rec_des_helper(subtree_root_index, next_right_value, arr):
+def bst_rec_des_helper(start_index, end_value, arr):
     """ Given subtree root index, the helper function reconstruct the subtree, return the root and index of the root of
     the next subtree.
 
-    :param subtree_root_index: array index for the current call
-    :param next_right_value: with arr[subtree_current_index] as the subtree root, the next value that's greater than all
-                             nodes of the subtree. Use None for root node.
+    :param start_index: inclusive start index of the subtree in the array
+    :param end_value: exclusive end value of the subtree. We use value index of index because the index is unknown
     :param arr: deserialized array
     :return: root of the subtree and starting index of the right subtree
     """
-    if subtree_root_index >= len(arr):
-        return None, len(arr)
-    if next_right_value is None or arr[subtree_root_index] < next_right_value:
-        # recursively reconstruct the left subtree
-        left_root, right_index = bst_rec_des_helper(subtree_root_index + 1, arr[subtree_root_index], arr)
-        # recursively reconstruct the right subtree
-        right_root = None
-        if next_right_value is None or right_index < len(arr) and arr[right_index] < next_right_value:
-            # the right subtree is not empty
-            right_root, rr_index = bst_rec_des_helper(right_index, next_right_value, arr)
+    if start_index >= len(arr) or arr[start_index] >= end_value:
+        return None, start_index
 
-        return BstNode(arr[subtree_root_index], left_root, right_root), right_index
-    else:
-        return None, subtree_root_index
+    # recursively reconstruct the left subtree
+    left_root, next_start_index = bst_rec_des_helper(start_index+1, arr[start_index], arr)
+    # recursively reconstruct the right subtree
+    right_root = None
+    if next_start_index < len(arr) and arr[next_start_index] < end_value:
+        # the right subtree is not empty
+        right_root, next_start_index = bst_rec_des_helper(next_start_index, end_value, arr)
+
+    return BstNode(arr[start_index], left_root, right_root), next_start_index
 
 
 def print_tree(root):
